@@ -26,11 +26,10 @@ class BigPhotoViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        if isShow == false {
+        if isShow == false {//viewDidLayoutSubviews可能被多次觸發
             let indextPath = IndexPath(item: item, section: 0)
             photosCollectionView.scrollToItem(at: indextPath, at: .centeredHorizontally, animated: false)
             pageControl.currentPage = item
-            //viewDidLayoutSubviews可能被多次觸發
             isShow = true
         }
         
@@ -43,7 +42,6 @@ class BigPhotoViewController: UIViewController {
         flowLayout?.minimumInteritemSpacing = 0
         flowLayout?.minimumLineSpacing = 0
         flowLayout?.sectionInset = .zero
-        
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {

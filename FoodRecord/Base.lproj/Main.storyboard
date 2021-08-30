@@ -256,7 +256,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Omc-sg-BXi" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2729" y="92"/>
+            <point key="canvasLocation" x="2618" y="439"/>
         </scene>
         <!--Add Modify Table View Controller-->
         <scene sceneID="dP4-rv-dbB">
@@ -850,7 +850,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kuE-sf-kap" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3129" y="858"/>
+            <point key="canvasLocation" x="3380" y="757"/>
         </scene>
         <!--Detail Table View Controller-->
         <scene sceneID="sxe-O0-kxA">
@@ -1179,7 +1179,7 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hT0-d4-Nq8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3486" y="92"/>
+            <point key="canvasLocation" x="3380" y="92"/>
         </scene>
         <!--Big Photo View Controller-->
         <scene sceneID="UWC-8w-Wtv">
@@ -1299,7 +1299,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9L4-bi-rhl" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <exit id="ZOc-Bz-p4C" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="5078" y="798"/>
+            <point key="canvasLocation" x="4129" y="439"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="Zn4-It-lAg">
@@ -1321,11 +1321,11 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3cy-Mz-g9f" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1962" y="92"/>
+            <point key="canvasLocation" x="1900" y="439"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="j0n-Et-Lff"/>
+        <segue reference="0ii-Zi-QuB"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="camera" catalog="system" width="128" height="94"/>

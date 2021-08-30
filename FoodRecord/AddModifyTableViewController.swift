@@ -363,31 +363,6 @@ class AddModifyTableViewController: UITableViewController {
     }
     
     // MARK: - Table view data source
-
-    //設定section footer 文字
-//    override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-//        if section == 0 {
-//            if foodPhotoImages.isEmpty {
-//                return "共0張"
-//            }else{
-//                return "共\(foodPhotoImages.count)張"
-//            }
-//        }else{
-//            return ""
-//        }
-//    }
-    
-//    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-//        if section == 0, !(foodPhotoImages.isEmpty) {
-//            if foodPhotoImages.isEmpty {
-//                return 5
-//            }else{
-//                return 13
-//            }
-//        }else{
-//            return 5
-//        }
-//    }
     
     /*
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -545,9 +520,6 @@ extension AddModifyTableViewController: PHPickerViewControllerDelegate {
                     //scrolling到最後加入的item
                     foodPhotoCollectionView.scrollToItem(at: indexPath, at: .left, animated: true)
                     pageControl.currentPage = pageControl.numberOfPages - 1
-//                    var content = tableView.footerView(forSection: 0)?.defaultContentConfiguration()
-//                    content?.secondaryText = "共\(foodPhotoImages.count)張"
-//                    tableView.footerView(forSection: 0)?.contentConfiguration = content
                 }
 
             }

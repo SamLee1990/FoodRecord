@@ -283,7 +283,6 @@ extension DetailTableViewController: UICollectionViewDelegate, UICollectionViewD
         }
     }
     
-    
 }
 
 extension DetailTableViewController: AddModifyTableViewControllerDelegate{
