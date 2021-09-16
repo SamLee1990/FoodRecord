@@ -8,11 +8,11 @@
 import Foundation
 import UIKit
 
-struct Restaurant: Codable{
+struct Restaurant {
+    var uuid: UUID
     var name: String
-    var photoNames: Array<String>
+    var photos: Array<UIImage>
     var score: Int//評分
-    var area: String?//地區
     var address: String?
     var phoneNumber: String?
     var website: String?
@@ -40,6 +40,9 @@ struct Restaurant: Codable{
         
         return businessHourString
     }
+    
+    // MARK: - FileManager
+    /*
     
     //檔案位置
     static let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -96,6 +99,7 @@ struct Restaurant: Codable{
         }
         return foodPhotoImages
     }
+ */
     
     
 }

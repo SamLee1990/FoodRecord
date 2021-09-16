@@ -30,6 +30,15 @@ class RestaurantsTableViewCell: UITableViewCell {
     }
     
     func setInfo(with restaurant: Restaurant) {
+        
+        if restaurant.photos.isEmpty {
+            foodImageView.image = UIImage(systemName: "questionmark.diamond")
+            foodImageView.contentMode = .center
+        } else {
+            foodImageView.image = restaurant.photos.first
+            foodImageView.contentMode = .scaleAspectFill
+        }
+        
         nameLabel.text = restaurant.name
         addressLabel.text = restaurant.address
         phoneLabel.text = restaurant.phoneNumber
@@ -39,6 +48,10 @@ class RestaurantsTableViewCell: UITableViewCell {
         let score = restaurant.score
         
         switch score {
+        case 0:
+            for i in 0...4 {
+                starImageViews[i].image = UIImage(systemName: "star")
+            }
         case 1:
             starImageViews[0].image = UIImage(systemName: "star.fill")
             for i in 1...4 {

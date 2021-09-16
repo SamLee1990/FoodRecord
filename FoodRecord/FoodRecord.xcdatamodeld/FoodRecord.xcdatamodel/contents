@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="18154" systemVersion="20G95" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="BusinessHoursData" representedClassName="BusinessHoursData" syncable="YES">
+        <attribute name="hour" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="num" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="belongto" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="RestaurantData" inverseName="businesshours" inverseEntity="RestaurantData"/>
+    </entity>
+    <entity name="PhotoData" representedClassName="PhotoData" syncable="YES">
+        <attribute name="num" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="photo" optional="YES" attributeType="Binary"/>
+        <relationship name="belongto" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="RestaurantData" inverseName="photos" inverseEntity="RestaurantData"/>
+    </entity>
+    <entity name="RestaurantData" representedClassName="RestaurantData" syncable="YES">
+        <attribute name="address" optional="YES" attributeType="String"/>
+        <attribute name="closeday" optional="YES" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="phone" optional="YES" attributeType="String"/>
+        <attribute name="remark" optional="YES" attributeType="String"/>
+        <attribute name="score" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="uuid" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="website" optional="YES" attributeType="String"/>
+        <relationship name="businesshours" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="BusinessHoursData" inverseName="belongto" inverseEntity="BusinessHoursData"/>
+        <relationship name="photos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="PhotoData" inverseName="belongto" inverseEntity="PhotoData"/>
+    </entity>
+    <elements>
+        <element name="BusinessHoursData" positionX="-130.05224609375" positionY="228.6628723144531" width="128" height="74"/>
+        <element name="PhotoData" positionX="19.69793701171875" positionY="238.3609619140625" width="128" height="74"/>
+        <element name="RestaurantData" positionX="-45" positionY="0" width="128" height="179"/>
+    </elements>
+</model>

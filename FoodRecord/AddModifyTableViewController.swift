@@ -7,6 +7,7 @@
 
 import UIKit
 import PhotosUI
+import CoreData
 
 class AddModifyTableViewController: UITableViewController {
     
@@ -27,14 +28,17 @@ class AddModifyTableViewController: UITableViewController {
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     @IBOutlet weak var saveButton: UIButton!
     
+    var app: AppDelegate!
+    var context: NSManagedObjectContext!
+    
     var delegate: AddModifyTableViewControllerDelegate?
 
     var restaurant: Restaurant!
     var actionType: ActionType!//動作類型
     var foodPhotoImages = [UIImage]()//照片
     
-    let photoLimit = 20//上傳照片數量上限
-    var oldFoodPhotoNames: Array<String>?//舊照片名稱
+    let photoLimit = 15//上傳照片數量上限
+    var uuid: UUID?
     var score = 0//評分
     let starUIImage = UIImage(systemName: "star")
     let starFillUIImage = UIImage(systemName: "star.fill")
@@ -69,8 +73,9 @@ class AddModifyTableViewController: UITableViewController {
     
     
     func updateModeInit() {
+        foodPhotoImages = restaurant.photos
+        uuid = restaurant.uuid
         nameTextField.text = restaurant.name
-        oldFoodPhotoNames = restaurant.photoNames
         score = restaurant.score
         switch score {
         case 0:
@@ -207,7 +212,6 @@ class AddModifyTableViewController: UITableViewController {
         }
     }
     
-    
     @IBAction func switchForBusinessHoursOne(_ sender: UISwitch) {
         if sender.isOn {
             businessHoursDatePickers[0].isEnabled = true
@@ -217,7 +221,6 @@ class AddModifyTableViewController: UITableViewController {
             businessHoursDatePickers[1].isEnabled = false
         }
     }
-    
     
     @IBAction func switchForBusinessHoursTwo(_ sender: UISwitch) {
         if sender.isOn {
@@ -311,6 +314,12 @@ class AddModifyTableViewController: UITableViewController {
             return
         }
         
+        let saveUUID: UUID
+        if let uuid = uuid {
+            saveUUID = uuid
+        } else {
+            saveUUID = UUID.init()
+        }
         let name = nameTextField.text ?? ""
         let address = addressTextView.text
         let phoneNumber = phoneTextField.text
@@ -318,40 +327,49 @@ class AddModifyTableViewController: UITableViewController {
         let businessHours = getBusinessHours()
         let closedTime = closedTimeTextField.text
         let remark = remarkTextView.text
-        var newFoodPhotoNames = [String]()
-        for _ in foodPhotoImages {
-            newFoodPhotoNames.append(UUID().uuidString)
-        }
         
-        restaurant = Restaurant(name: name, photoNames: newFoodPhotoNames, score: score, area: nil, address: address, phoneNumber: phoneNumber, website: websiteURL, businessHours: businessHours, closed: closedTime, remark: remark)
+        restaurant = Restaurant(uuid: saveUUID, name: name, photos: foodPhotoImages, score: score, address: address, phoneNumber: phoneNumber, website: websiteURL, businessHours: businessHours, closed: closedTime, remark: remark)
         
         activityIndicatorView.startAnimating()
         self.view.window?.isUserInteractionEnabled = false
-        delegate?.update(restaurant: restaurant, foodPhotos: foodPhotoImages)
         
-        let queue = DispatchQueue(label: "com.savephoto.sam")
-        queue.async { [self] in
-            do {
-                try Restaurant.savePhotoToFile(foodPhotos: foodPhotoImages, photoNames: restaurant.photoNames, deletePhotoNames: oldFoodPhotoNames)
-            } catch {
-                print("照片儲存失敗！")
-                DispatchQueue.main.async {
-                    let controller = UIAlertController(title: "⚠️照片存擋失敗！", message: nil, preferredStyle: .alert)
-                    let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-                    controller.addAction(okAction)
-                    present(controller, animated: true, completion: nil)
-                }
-            }
-            DispatchQueue.main.async {
-                activityIndicatorView.stopAnimating()
-                self.view.window?.isUserInteractionEnabled = true
-                navigationController?.popViewController(animated: true)
-            }
+        if actionType == .Add {
+            insertRestaurantData(restaurant: restaurant)
+        } else {
+            updateRestaurantData(restaurant: restaurant)
         }
+        
+//        delegate?.update(restaurant: restaurant)
+//
+//        activityIndicatorView.stopAnimating()
+//        self.view.window?.isUserInteractionEnabled = true
+//
+//        navigationController?.popViewController(animated: true)
+        
+//        let queue = DispatchQueue(label: "com.savephoto.sam")
+//        queue.async { [self] in
+//            do {
+//                try Restaurant.savePhotoToFile(foodPhotos: foodPhotoImages, photoNames: restaurant.photoNames, deletePhotoNames: oldFoodPhotoNames)
+//            } catch {
+//                print("照片儲存失敗！")
+//                DispatchQueue.main.async {
+//                    let controller = UIAlertController(title: "⚠️照片存擋失敗！", message: nil, preferredStyle: .alert)
+//                    let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+//                    controller.addAction(okAction)
+//                    present(controller, animated: true, completion: nil)
+//                }
+//            }
+//            DispatchQueue.main.async {
+//                activityIndicatorView.stopAnimating()
+//                self.view.window?.isUserInteractionEnabled = true
+//                navigationController?.popViewController(animated: true)
+//            }
+//        }
         
     }
     
     @IBAction func unwindToBigPhoto(_ unwindSegue: UIStoryboardSegue) {
+        // Use data from the view controller which initiated the unwind segue
         if let sourceViewController = unwindSegue.source as? BigPhotoViewController,
            let item = sourceViewController.item{
             let indexPath = IndexPath(item: item, section: 0)
@@ -359,68 +377,8 @@ class AddModifyTableViewController: UITableViewController {
             pageControl.currentPage = item
         }
         
-        // Use data from the view controller which initiated the unwind segue
     }
     
-    // MARK: - Table view data source
-    
-    /*
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 0
-    }
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return 0
-    }
-    */
-
-    /*
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
-
-        // Configure the cell...
-
-        return cell
-    }
-    */
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
 
     // MARK: - Navigation
 
@@ -562,9 +520,109 @@ extension AddModifyTableViewController: UITextViewDelegate{
     }
 }
 
+//Core data 操作
+extension AddModifyTableViewController {
+    
+    //新增餐廳
+    func insertRestaurantData(restaurant: Restaurant) {
+        let queue = DispatchQueue(label: "com.savetocoredata.sam")
+        queue.async { [weak self] in
+            guard let self = self else { return }
+            let resData = RestaurantData(context: self.context)
+            resData.uuid = restaurant.uuid
+            resData.name = restaurant.name
+            resData.score = Int16(restaurant.score)
+            resData.address = restaurant.address
+            resData.phone = restaurant.phoneNumber
+            resData.website = restaurant.website
+            resData.closeday = restaurant.closed
+            resData.remark = restaurant.remark
+            //新增照片與營業時間
+            if let bHours = restaurant.businessHours {
+                for (i, bHour) in bHours.enumerated() {
+                    let bHoursData = BusinessHoursData(context: self.context)
+                    bHoursData.num = Int16(i)
+                    bHoursData.hour = bHour
+                    resData.addToBusinesshours(bHoursData)
+                }
+            }
+            for (i, photo) in restaurant.photos.enumerated() {
+                let photoData = PhotoData(context: self.context)
+                photoData.num = Int16(i)
+                photoData.photo = photo.jpegData(compressionQuality: 0.7)
+                resData.addToPhotos(photoData)
+            }
+            self.app.saveContext()
+            print("新增餐廳 \(restaurant.name) 成功")
+            DispatchQueue.main.async {
+                self.delegate?.update(restaurant: restaurant)
+                self.view.window?.isUserInteractionEnabled = true
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
+    }
+    
+    //更新餐廳
+    func updateRestaurantData(restaurant: Restaurant) {
+        let queue = DispatchQueue(label: "com.savetocoredata.sam")
+        queue.async { [weak self] in
+            guard let self = self else { return }
+            let fetchRequest:NSFetchRequest = RestaurantData.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "uuid == %@", restaurant.uuid as CVarArg)
+            do {
+                let results = try self.context.fetch(fetchRequest)
+                for result in results {
+                    result.name = restaurant.name
+                    result.score = Int16(restaurant.score)
+                    result.address = restaurant.address
+                    result.phone = restaurant.phoneNumber
+                    result.website = restaurant.website
+                    result.closeday = restaurant.closed
+                    result.remark = restaurant.remark
+                    //刪除照片與營業時間
+                    for photo in result.photos as! Set<PhotoData> {
+                        self.context.delete(photo)
+                    }
+                    for hours in result.businesshours as! Set<BusinessHoursData> {
+                        self.context.delete(hours)
+                    }
+                    //新增照片與營業時間
+                    if let bHours = restaurant.businessHours {
+                        for (i, bHour) in bHours.enumerated() {
+                            let bHoursData = BusinessHoursData(context: self.context)
+                            bHoursData.num = Int16(i)
+                            bHoursData.hour = bHour
+                            result.addToBusinesshours(bHoursData)
+                        }
+                    }
+                    for (i, photo) in restaurant.photos.enumerated() {
+                        let photoData = PhotoData(context: self.context)
+                        photoData.num = Int16(i)
+                        photoData.photo = photo.jpegData(compressionQuality: 0.7)
+                        result.addToPhotos(photoData)
+                    }
+                    self.app.saveContext()
+                    print("更新餐廳 \(restaurant.name) 成功")
+                }
+                DispatchQueue.main.async {
+                    self.delegate?.update(restaurant: restaurant)
+                    self.view.window?.isUserInteractionEnabled = true
+                    self.navigationController?.popViewController(animated: true)
+                }
+            } catch {
+                print(error)
+                self.activityIndicatorView.stopAnimating()
+                self.view.window?.isUserInteractionEnabled = true
+            }
+        }
+    }
+    
+    
+}
+
 //delegate
 protocol AddModifyTableViewControllerDelegate {
-    func update(restaurant: Restaurant, foodPhotos: [UIImage])
+    func update(restaurant: Restaurant)
 }
 
 enum ActionType {

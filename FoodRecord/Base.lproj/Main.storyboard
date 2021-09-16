@@ -247,7 +247,7 @@
                     </tableView>
                     <navigationItem key="navigationItem" title="Food Record" largeTitleDisplayMode="never" id="GP0-17-Ic4">
                         <barButtonItem key="rightBarButtonItem" style="done" systemItem="compose" id="KWG-3x-rys">
-                            <color key="tintColor" systemColor="labelColor"/>
+                            <color key="tintColor" red="0.36078431370000003" green="0.78039215689999997" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <connections>
                                 <segue destination="3Cd-95-E7D" kind="show" destinationCreationSelector="showAddTableViewController:" id="uTV-Hm-qvo"/>
                             </connections>
@@ -804,14 +804,14 @@
                         <rightBarButtonItems>
                             <barButtonItem enabled="NO" springLoaded="YES" style="done" id="vkE-qa-bEP">
                                 <imageReference key="image" image="photo" catalog="system" symbolScale="large"/>
-                                <color key="tintColor" systemColor="labelColor"/>
+                                <color key="tintColor" red="0.36078431370000003" green="0.78039215689999997" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <connections>
                                     <action selector="choosePhoto:" destination="3Cd-95-E7D" id="bnL-bk-d8f"/>
                                 </connections>
                             </barButtonItem>
                             <barButtonItem enabled="NO" springLoaded="YES" style="done" id="2WG-yT-mvW">
                                 <imageReference key="image" image="camera" catalog="system" symbolScale="large"/>
-                                <color key="tintColor" systemColor="labelColor"/>
+                                <color key="tintColor" red="0.36078431370000003" green="0.78039215689999997" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <connections>
                                     <action selector="takePhoto:" destination="3Cd-95-E7D" id="u97-O1-dQ0"/>
                                 </connections>
@@ -1154,7 +1154,7 @@
                     </tableView>
                     <navigationItem key="navigationItem" largeTitleDisplayMode="always" id="AAg-E5-H0u">
                         <barButtonItem key="rightBarButtonItem" springLoaded="YES" style="done" systemItem="action" id="Qqf-yG-P1d">
-                            <color key="tintColor" systemColor="labelColor"/>
+                            <color key="tintColor" red="0.36078431370000003" green="0.78039215689999997" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <connections>
                                 <action selector="alertActionSheet:" destination="Zzt-Zp-d5B" id="0aq-cS-etF"/>
                             </connections>
@@ -1309,7 +1309,7 @@
                     <navigationBar key="navigationBar" contentMode="scaleToFill" largeTitles="YES" id="pmQ-Tj-J9A">
                         <rect key="frame" x="0.0" y="44" width="390" height="96"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <color key="tintColor" systemColor="labelColor"/>
+                        <color key="tintColor" red="0.36078431370000003" green="0.78039215689999997" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="vyJ-xg-ukX">
@@ -1325,7 +1325,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="0ii-Zi-QuB"/>
+        <segue reference="j0n-Et-Lff"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="camera" catalog="system" width="128" height="94"/>
