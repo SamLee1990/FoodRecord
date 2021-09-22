@@ -28,11 +28,11 @@ class AddModifyTableViewController: UITableViewController {
     @IBOutlet weak var activityIndicatorView: UIActivityIndicatorView!
     @IBOutlet weak var saveButton: UIButton!
     
-    var app: AppDelegate!
-    var context: NSManagedObjectContext!
+    weak var app: AppDelegate!
+    weak var context: NSManagedObjectContext!
     
-    var delegate: AddModifyTableViewControllerDelegate?
-
+    let queue = DispatchQueue(label: "com.savetocoredata.sam")
+    
     var restaurant: Restaurant!
     var actionType: ActionType!//動作類型
     var foodPhotoImages = [UIImage]()//照片
@@ -525,7 +525,6 @@ extension AddModifyTableViewController {
     
     //新增餐廳
     func insertRestaurantData(restaurant: Restaurant) {
-        let queue = DispatchQueue(label: "com.savetocoredata.sam")
         queue.async { [weak self] in
             guard let self = self else { return }
             let resData = RestaurantData(context: self.context)
@@ -555,7 +554,11 @@ extension AddModifyTableViewController {
             self.app.saveContext()
             print("新增餐廳 \(restaurant.name) 成功")
             DispatchQueue.main.async {
-                self.delegate?.update(restaurant: restaurant)
+//                self.delegate?.update(restaurant: restaurant)
+                
+                let name = Notification.Name("insertRestaurantNotification")
+                NotificationCenter.default.post(name: name, object: nil, userInfo: ["restaurant" : restaurant])
+                
                 self.view.window?.isUserInteractionEnabled = true
                 self.navigationController?.popViewController(animated: true)
             }
@@ -564,7 +567,6 @@ extension AddModifyTableViewController {
     
     //更新餐廳
     func updateRestaurantData(restaurant: Restaurant) {
-        let queue = DispatchQueue(label: "com.savetocoredata.sam")
         queue.async { [weak self] in
             guard let self = self else { return }
             let fetchRequest:NSFetchRequest = RestaurantData.fetchRequest()
@@ -605,7 +607,11 @@ extension AddModifyTableViewController {
                     print("更新餐廳 \(restaurant.name) 成功")
                 }
                 DispatchQueue.main.async {
-                    self.delegate?.update(restaurant: restaurant)
+//                    self.delegate?.update(restaurant: restaurant)
+                    
+                    let name = Notification.Name("updateRestaurantNotification")
+                    NotificationCenter.default.post(name: name, object: nil, userInfo: ["restaurant" : restaurant])
+                    
                     self.view.window?.isUserInteractionEnabled = true
                     self.navigationController?.popViewController(animated: true)
                 }
@@ -621,9 +627,9 @@ extension AddModifyTableViewController {
 }
 
 //delegate
-protocol AddModifyTableViewControllerDelegate {
-    func update(restaurant: Restaurant)
-}
+//protocol AddModifyTableViewControllerDelegate: AnyObject {
+//    func update(restaurant: Restaurant)
+//}
 
 enum ActionType {
     case Add

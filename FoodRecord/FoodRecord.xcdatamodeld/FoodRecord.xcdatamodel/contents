@@ -23,8 +23,8 @@
         <relationship name="photos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="PhotoData" inverseName="belongto" inverseEntity="PhotoData"/>
     </entity>
     <elements>
-        <element name="BusinessHoursData" positionX="-130.05224609375" positionY="228.6628723144531" width="128" height="74"/>
-        <element name="PhotoData" positionX="19.69793701171875" positionY="238.3609619140625" width="128" height="74"/>
+        <element name="BusinessHoursData" positionX="-130.05224609375" positionY="228.6628723144531" width="128" height="88"/>
+        <element name="PhotoData" positionX="19.69793701171875" positionY="238.3609619140625" width="128" height="88"/>
         <element name="RestaurantData" positionX="-45" positionY="0" width="128" height="179"/>
     </elements>
 </model>

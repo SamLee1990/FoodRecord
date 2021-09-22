@@ -26,6 +26,7 @@ class RestaurantsTableViewController: UITableViewController {
         super.viewDidLoad()
         
         setupSearchController()
+        registerForInsertUpdateDeleteNotification()
         //CoreData
         queryRestaurantData()
         
@@ -59,12 +60,6 @@ class RestaurantsTableViewController: UITableViewController {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "RestaurantCell", for: indexPath) as? RestaurantsTableViewCell else { return UITableViewCell() }
             let row = indexPath.row
             cell.setInfo(with: filterRestaurants[row])
-//            cell.foodImageView.image = filterRestaurantPhotos[row]
-//            if filterRestaurantPhotos[row].isSymbolImage{
-//                cell.foodImageView.contentMode = .center
-//            }else{
-//                cell.foodImageView.contentMode = .scaleAspectFill
-//            }
 
             return cell
         }else{
@@ -80,7 +75,7 @@ class RestaurantsTableViewController: UITableViewController {
         
         controller?.app = app
         controller?.context = context
-        controller?.delegate = self
+//        controller?.delegate = self
         controller?.actionType = .Add
         
         return controller
@@ -91,6 +86,7 @@ class RestaurantsTableViewController: UITableViewController {
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        searchController.searchBar.resignFirstResponder()
         if let row = tableView.indexPathForSelectedRow?.row,
            let controller = segue.destination as? DetailTableViewController {
             let restaurant = filterRestaurants[row]
@@ -98,9 +94,9 @@ class RestaurantsTableViewController: UITableViewController {
             controller.context = context
             controller.restaurant = restaurant
             rowForUpdateDelete = row
-            controller.delegate = self
+//            controller.delegate = self
         }
-        searchController.searchBar.resignFirstResponder()
+        
     }
     
 }
@@ -131,10 +127,24 @@ extension RestaurantsTableViewController: UISearchResultsUpdating {
     
 }
 
-//for add
-extension RestaurantsTableViewController: AddModifyTableViewControllerDelegate{
+//for insert update delete Notification
+extension RestaurantsTableViewController {
     
-    func update(restaurant: Restaurant) {
+    func registerForInsertUpdateDeleteNotification() {
+        var name = NSNotification.Name("insertRestaurantNotification")
+        NotificationCenter.default.addObserver(self, selector: #selector(insertRow(_:)), name: name, object: nil)
+        
+        name = NSNotification.Name("updateRestaurantNotification")
+        NotificationCenter.default.addObserver(self, selector: #selector(updateRow(_:)), name: name, object: nil)
+        
+        name = NSNotification.Name("deleteRestaurantNotification")
+        NotificationCenter.default.addObserver(self, selector: #selector(deleteRow(_:)), name: name, object: nil)
+    }
+    
+    @objc func insertRow(_ notification: Notification) {
+        guard let info = notification.userInfo,
+        let restaurant = info["restaurant"] as? Restaurant else { return }
+        
         restaurants.insert(restaurant, at: 0)
         filterInit()
         if searchController.isActive {
@@ -146,12 +156,10 @@ extension RestaurantsTableViewController: AddModifyTableViewControllerDelegate{
         tableView.scrollToRow(at: indexPath, at: .top, animated: false)
     }
     
-}
-
-//for update and delete
-extension RestaurantsTableViewController: DetailTableViewControllerDelegate{
-    
-    func updateRow(restaurant: Restaurant) {
+    @objc func updateRow(_ notification: Notification) {
+        guard let info = notification.userInfo,
+        let restaurant = info["restaurant"] as? Restaurant else { return }
+        
         var row: Int
         if filterRows.isEmpty {
             row = rowForUpdateDelete
@@ -165,7 +173,7 @@ extension RestaurantsTableViewController: DetailTableViewControllerDelegate{
         tableView.scrollToRow(at: indexPath, at: .top, animated: false)
     }
     
-    func deleteRow() {
+    @objc func deleteRow(_ notification: Notification) {
         var row: Int
         if filterRows.isEmpty {
             row = rowForUpdateDelete
@@ -192,7 +200,7 @@ extension RestaurantsTableViewController {
     func queryRestaurantData() {
         do {
             let results = try context.fetch(RestaurantData.fetchRequest())
-            for result in results as! [RestaurantData] {
+            for result in results {
                 let uuid = result.uuid!
                 let name = result.name!
                 let score = Int(result.score)

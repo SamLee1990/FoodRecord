@@ -20,18 +20,18 @@ class DetailTableViewController: UITableViewController {
     @IBOutlet weak var closedLabel: UILabel!
     @IBOutlet weak var remarkLabel: UILabel!
     
-    var app: AppDelegate!
-    var context: NSManagedObjectContext!
+    weak var app: AppDelegate!
+    weak var context: NSManagedObjectContext!
     
-    var delegate: DetailTableViewControllerDelegate?
-    
+    var queue = DispatchQueue(label: "com.savetocoredata.sam")
+        
     var restaurant: Restaurant!
-    var photoImages: Array<UIImage>!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         foodPhotoCollectionView.delegate = self
         foodPhotoCollectionView.dataSource = self
+        registerForUpdateNotification()
         setupRestaurantInfo()
     }
     
@@ -40,8 +40,13 @@ class DetailTableViewController: UITableViewController {
         setupCollectionViewCell()
     }
     
+    deinit {
+        
+        print("DetailTableViewController 釋放記憶體")
+    }
+    
     func setupRestaurantInfo() {
-        photoImages = restaurant.photos
+//        photoImages = restaurant.photos
         title = restaurant.name
         addressLabel.text = restaurant.address
         phoneNumberLabel.text = restaurant.phoneNumber
@@ -128,7 +133,7 @@ class DetailTableViewController: UITableViewController {
         guard let controller = storyboard?.instantiateViewController(withIdentifier: "AddModifyTableViewController") as? AddModifyTableViewController else { return }
         controller.app = app
         controller.context = context
-        controller.delegate = self
+//        controller.delegate = self
         controller.actionType = .Update
         controller.restaurant = restaurant
         
@@ -137,10 +142,11 @@ class DetailTableViewController: UITableViewController {
     
     func deleteRestaurant() {
         let controller = UIAlertController(title: "確定要刪除「\(restaurant.name)」？", message: nil, preferredStyle: .alert)
-        let yesAction = UIAlertAction(title: "確定刪除", style: .destructive) { [self] alertAction in
-            title = "刪除中..."
+        let yesAction = UIAlertAction(title: "確定刪除", style: .destructive) { [weak self] alertAction in
+            guard let self = self else { return }
+            self.title = "刪除中..."
             self.view.window?.isUserInteractionEnabled = false
-            deleteRestaurantData(uuid: restaurant.uuid)
+            self.deleteRestaurantData(uuid: self.restaurant.uuid)
         }
         let cancelAction = UIAlertAction(title: "取消", style: .cancel, handler: nil)
         controller.addAction(yesAction)
@@ -245,7 +251,7 @@ class DetailTableViewController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "presentBigPhoto" {
             let controller = segue.destination as? BigPhotoViewController
-            controller?.photos = photoImages
+            controller?.photos = restaurant.photos
             controller?.item = sender as? Int
         }
     }
@@ -260,7 +266,7 @@ extension DetailTableViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        let count = photoImages.count
+        let count = restaurant.photos.count
         pageControl.numberOfPages = count
         if count == 0{
             return 1
@@ -272,8 +278,8 @@ extension DetailTableViewController: UICollectionViewDelegate, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DetailPhotoCollectionViewCell", for: indexPath) as? DetailPhotoCollectionViewCell else { return UICollectionViewCell() }
         
-        if !(photoImages.isEmpty) {
-            cell.photoImageView.image = photoImages[indexPath.item]
+        if !(restaurant.photos.isEmpty) {
+            cell.photoImageView.image = restaurant.photos[indexPath.item]
             cell.photoImageView.contentMode = .scaleAspectFill
         }else{
             cell.photoImageView.image = UIImage(systemName: "questionmark.diamond")
@@ -284,7 +290,7 @@ extension DetailTableViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if photoImages.isEmpty == false{
+        if restaurant.photos.isEmpty == false{
             performSegue(withIdentifier: "presentBigPhoto", sender: indexPath.item)
         }
     }
@@ -294,37 +300,26 @@ extension DetailTableViewController: UICollectionViewDelegate, UICollectionViewD
 //CoreData 操作
 extension DetailTableViewController {
     
-//    func saveAlert(error: String?) {
-//        let title = "⚠️刪除失敗！"
-//        let controller = UIAlertController(title: title, message: error, preferredStyle: .alert)
-//        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-//        controller.addAction(okAction)
-//        present(controller, animated: true, completion: nil)
-//    }
-    
     //刪除餐廳
     func deleteRestaurantData(uuid: UUID) {
         let fetchRequest: NSFetchRequest = RestaurantData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "uuid == %@", uuid as CVarArg)
         
-        let queue = DispatchQueue(label: "com.savetocoredata.sam")
         queue.async { [weak self] in
             guard let self = self else { return }
             do {
                 let results = try self.context.fetch(fetchRequest)
                 for result in results {
-//                    for photo in result.photos as! Set<PhotoData> {
-//                        self.context.delete(photo)
-//                    }
-//                    for hours in result.businesshours as! Set<BusinessHoursData> {
-//                        self.context.delete(hours)
-//                    }
                     self.context.delete(result)
                     self.app.saveContext()
                     print("刪除餐廳成功")
                 }
                 DispatchQueue.main.async {
-                    self.delegate?.deleteRow()
+//                    self.delegate?.deleteRow()
+                    
+                    let name = Notification.Name("deleteRestaurantNotification")
+                    NotificationCenter.default.post(name: name, object: nil)
+                    
                     self.view.window?.isUserInteractionEnabled = true
                     self.navigationController?.popViewController(animated: true)
                 }
@@ -332,16 +327,24 @@ extension DetailTableViewController {
                 self.title = self.restaurant.name
                 self.view.window?.isUserInteractionEnabled = true
                 print(error)
-//                saveAlert(error: error.localizedDescription)
             }
         }
     }
     
 }
 
-extension DetailTableViewController: AddModifyTableViewControllerDelegate{
+//Notification
+extension DetailTableViewController {
     
-    func update(restaurant: Restaurant) {
+    func registerForUpdateNotification() {
+        let name = NSNotification.Name("updateRestaurantNotification")
+        NotificationCenter.default.addObserver(self, selector: #selector(update(_:)), name: name, object: nil)
+    }
+    
+    @objc func update(_ notifiction: NSNotification) {
+        guard let info = notifiction.userInfo,
+        let restaurant = info["restaurant"] as? Restaurant else { return }
+        
         self.restaurant = restaurant
         setupRestaurantInfo()
         tableView.reloadData()
@@ -349,13 +352,14 @@ extension DetailTableViewController: AddModifyTableViewControllerDelegate{
         let indextPath = IndexPath(item: 0, section: 0)
         foodPhotoCollectionView.scrollToItem(at: indextPath, at: .left, animated: false)
         pageControl.currentPage = 0
-        delegate?.updateRow(restaurant: restaurant)
+//        delegate?.updateRow(restaurant: restaurant)
     }
     
 }
 
 //delegate
-protocol DetailTableViewControllerDelegate {
-    func updateRow(restaurant: Restaurant)
-    func deleteRow()
-}
+//protocol DetailTableViewControllerDelegate: AnyObject {
+//    func updateRow(restaurant: Restaurant)
+//    func deleteRow()
+//}
+

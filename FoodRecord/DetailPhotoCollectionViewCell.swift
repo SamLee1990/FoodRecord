@@ -11,5 +11,9 @@ class DetailPhotoCollectionViewCell: UICollectionViewCell {
     
     @IBOutlet weak var photoImageView: UIImageView!
     
-    
+//    deinit {
+//        photoImageView.removeFromSuperview()
+//        photoImageView = nil
+//        print("DetailPhotoCollectionViewCell 記憶體釋放")
+//    }
 }
